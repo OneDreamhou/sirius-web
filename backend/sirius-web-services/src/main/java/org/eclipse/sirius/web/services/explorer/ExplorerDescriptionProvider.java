@@ -74,8 +74,9 @@ public class ExplorerDescriptionProvider implements IExplorerDescriptionProvider
                 .treeItemIdProvider(this::getTreeItemId)
                 .kindProvider(this::getKind)
                 .labelProvider(this::getLabel)
-                .editableProvider(this::isEditable)
                 .imageURLProvider(this::getImageURL)
+                .editableProvider(this::isEditable)
+                .deletableProvider(this::isDeletable)
                 .elementsProvider(this::getElements)
                 .hasChildrenProvider(this::hasChildren)
                 .childrenProvider(this::getChildren)
@@ -148,6 +149,10 @@ public class ExplorerDescriptionProvider implements IExplorerDescriptionProvider
         }
         return editable;
 
+    }
+
+    private boolean isDeletable(VariableManager variableManager) {
+        return true;
     }
 
     private String getImageURL(VariableManager variableManager) {
