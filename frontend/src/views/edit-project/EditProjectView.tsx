@@ -19,7 +19,7 @@ import Typography from '@material-ui/core/Typography';
 import CloseIcon from '@material-ui/icons/Close';
 import { useMachine } from '@xstate/react';
 import gql from 'graphql-tag';
-import { useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import { generatePath, useHistory, useParams, useRouteMatch } from 'react-router-dom';
 import { EditProjectNavbar } from 'views/edit-project/EditProjectNavbar/EditProjectNavbar';
 import {
@@ -37,7 +37,17 @@ import {
   SelectRepresentationEvent,
   ShowToastEvent,
 } from 'views/edit-project/EditProjectViewMachine';
-import { Representation, Workbench } from '@eclipse-sirius/sirius-components';
+import {
+  httpOrigin,
+  Entry,
+  NewRootObjectModal,
+  Representation,
+  Workbench,
+  NewObjectModal,
+  NewRepresentationModal,
+  TreeItemHandler,
+  TreeItemHandlersContext,
+} from '@eclipse-sirius/sirius-components';
 import { NavigationBar } from 'navigationBar/NavigationBar';
 
 const getProjectQuery = gql`
@@ -69,6 +79,68 @@ const useEditProjectViewStyles = makeStyles((theme) => ({
   },
 }));
 
+const documentItemHandler: TreeItemHandler = {
+  handles: (treeItem) => treeItem.kind === 'Document',
+  getItemTitle: (item) => 'Model',
+  getItemLabel: (item) => item.label,
+  getModal: (name) => {
+    if (name === 'CreateNewRootObject') {
+      return NewRootObjectModal;
+    }
+  },
+  getMenuEntries: (item, editingContextId, readOnly, openModal, closeContextMenu) => {
+    return [
+      <Entry
+        label="New object"
+        onClick={() => openModal('CreateNewRootObject')}
+        data-testid="new-object"
+        disabled={readOnly}
+      />,
+      <a
+        href={`${httpOrigin}/api/editingcontexts/${editingContextId}/documents/${item.id}`}
+        type="application/octet-stream"
+        data-testid="download-link">
+        <Entry label="Download" onClick={closeContextMenu} data-testid="download" />
+      </a>,
+    ];
+  },
+};
+
+const semanticObjectItemHandler: TreeItemHandler = {
+  handles: (treeItem) => treeItem.kind !== null && treeItem.kind.includes('::'),
+  getItemTitle: (item) => item.kind,
+  getItemLabel: (item) => {
+    if (item.label) {
+      return item.label;
+    } else {
+      return item.kind.split('::').pop();
+    }
+  },
+  getModal: (name) => {
+    if (name === 'CreateNewObject') {
+      return NewObjectModal;
+    } else if (name === 'CreateRepresentation') {
+      return NewRepresentationModal;
+    }
+  },
+  getMenuEntries: (item, editingContextId, readOnly, openModal, closeContextMenu) => {
+    return [
+      <Entry
+        label="New object"
+        onClick={() => openModal('CreateNewObject')}
+        data-testid="new-object"
+        disabled={readOnly}
+      />,
+      <Entry
+        label="New representation"
+        onClick={() => openModal('CreateRepresentation')}
+        data-testid="new-representation"
+        disabled={readOnly}
+      />,
+    ];
+  },
+};
+
 export const EditProjectView = () => {
   const history = useHistory();
   const routeMatch = useRouteMatch();
@@ -79,6 +151,10 @@ export const EditProjectView = () => {
   );
   const { toast, editProjectView } = value as SchemaValue;
   const { project, representation, message } = context;
+
+  const { registerTreeItemHandler } = useContext(TreeItemHandlersContext);
+  registerTreeItemHandler(documentItemHandler);
+  registerTreeItemHandler(semanticObjectItemHandler);
 
   const { loading, data, error } = useQuery<GQLGetProjectQueryData, GQLGetProjectQueryVariables>(getProjectQuery, {
     variables: {
