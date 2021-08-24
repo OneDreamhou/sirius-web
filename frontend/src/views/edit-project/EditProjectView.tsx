@@ -11,21 +11,36 @@
  *     Obeo - initial API and implementation
  *******************************************************************************/
 import { useQuery } from '@apollo/client';
+import {
+  httpOrigin,
+  NewObjectModal,
+  NewRepresentationModal,
+  NewRootObjectModal,
+  Representation,
+  TreeItemHandler,
+  TreeItemHandlersContext,
+  Workbench,
+} from '@eclipse-sirius/sirius-components';
+import { ListItemIcon, MenuItem } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
+import ListItemText from '@material-ui/core/ListItemText';
 import Snackbar from '@material-ui/core/Snackbar';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
+import AddIcon from '@material-ui/icons/Add';
 import CloseIcon from '@material-ui/icons/Close';
+import GetAppIcon from '@material-ui/icons/GetApp';
 import { useMachine } from '@xstate/react';
 import gql from 'graphql-tag';
+import { NavigationBar } from 'navigationBar/NavigationBar';
 import { useContext, useEffect } from 'react';
 import { generatePath, useHistory, useParams, useRouteMatch } from 'react-router-dom';
 import { EditProjectNavbar } from 'views/edit-project/EditProjectNavbar/EditProjectNavbar';
 import {
+  EditProjectViewParams,
   GQLGetProjectQueryData,
   GQLGetProjectQueryVariables,
-  EditProjectViewParams,
 } from 'views/edit-project/EditProjectView.types';
 import {
   EditProjectViewContext,
@@ -37,18 +52,6 @@ import {
   SelectRepresentationEvent,
   ShowToastEvent,
 } from 'views/edit-project/EditProjectViewMachine';
-import {
-  httpOrigin,
-  Entry,
-  NewRootObjectModal,
-  Representation,
-  Workbench,
-  NewObjectModal,
-  NewRepresentationModal,
-  TreeItemHandler,
-  TreeItemHandlersContext,
-} from '@eclipse-sirius/sirius-components';
-import { NavigationBar } from 'navigationBar/NavigationBar';
 
 const getProjectQuery = gql`
   query getRepresentation($projectId: ID!, $representationId: ID!, $includeRepresentation: Boolean!) {
@@ -88,20 +91,35 @@ const documentItemHandler: TreeItemHandler = {
       return NewRootObjectModal;
     }
   },
-  getMenuEntries: (item, editingContextId, readOnly, openModal, closeContextMenu) => {
+  getMenuEntries: (item, editingContextId, readOnly, openModal, closeContextMenu, classes) => {
     return [
-      <Entry
-        label="New object"
-        onClick={() => openModal('CreateNewRootObject')}
+      <MenuItem
+        key="new-object"
         data-testid="new-object"
-        disabled={readOnly}
-      />,
-      <a
+        onClick={() => openModal('CreateNewRootObject')}
+        dense
+        className={classes.item}>
+        <ListItemIcon>
+          <AddIcon fontSize="small" />
+        </ListItemIcon>
+        <ListItemText primary="New object" />
+      </MenuItem>,
+      <MenuItem
+        key="download"
+        divider
+        onClick={closeContextMenu}
+        component="a"
         href={`${httpOrigin}/api/editingcontexts/${editingContextId}/documents/${item.id}`}
         type="application/octet-stream"
-        data-testid="download-link">
-        <Entry label="Download" onClick={closeContextMenu} data-testid="download" />
-      </a>,
+        data-testid="download"
+        disabled={readOnly}
+        dense
+        className={classes.item}>
+        <ListItemIcon>
+          <GetAppIcon fontSize="small" />
+        </ListItemIcon>
+        <ListItemText primary="Download" />
+      </MenuItem>,
     ];
   },
 };
@@ -123,20 +141,32 @@ const semanticObjectItemHandler: TreeItemHandler = {
       return NewRepresentationModal;
     }
   },
-  getMenuEntries: (item, editingContextId, readOnly, openModal, closeContextMenu) => {
+  getMenuEntries: (item, editingContextId, readOnly, openModal, closeContextMenu, classes) => {
     return [
-      <Entry
-        label="New object"
+      <MenuItem
+        key="new-object"
         onClick={() => openModal('CreateNewObject')}
         data-testid="new-object"
+        dense
         disabled={readOnly}
-      />,
-      <Entry
-        label="New representation"
+        className={classes.item}>
+        <ListItemIcon>
+          <AddIcon fontSize="small" />
+        </ListItemIcon>
+        <ListItemText primary="New object" />
+      </MenuItem>,
+      <MenuItem
+        key="new-representation"
         onClick={() => openModal('CreateRepresentation')}
         data-testid="new-representation"
+        dense
         disabled={readOnly}
-      />,
+        className={classes.item}>
+        <ListItemIcon>
+          <AddIcon fontSize="small" />
+        </ListItemIcon>
+        <ListItemText primary="New representation" />
+      </MenuItem>,
     ];
   },
 };
