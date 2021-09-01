@@ -17,6 +17,7 @@ import java.util.UUID;
 
 import org.eclipse.sirius.web.annotations.Immutable;
 import org.eclipse.sirius.web.representations.IRepresentation;
+import org.eclipse.sirius.web.representations.ISemanticRepresentationMetadata;
 
 /**
  * The representation descriptor.
@@ -24,7 +25,7 @@ import org.eclipse.sirius.web.representations.IRepresentation;
  * @author gcoutable
  */
 @Immutable
-public class RepresentationDescriptor {
+public class RepresentationDescriptor implements ISemanticRepresentationMetadata {
     private UUID id;
 
     private UUID projectId;
@@ -37,6 +38,7 @@ public class RepresentationDescriptor {
 
     private IRepresentation representation;
 
+    @Override
     public UUID getId() {
         return this.id;
     }
@@ -45,16 +47,24 @@ public class RepresentationDescriptor {
         return this.projectId;
     }
 
+    @Override
     public UUID getDescriptionId() {
         return this.descriptionId;
     }
 
+    @Override
     public String getTargetObjectId() {
         return this.targetObjectId;
     }
 
+    @Override
     public String getLabel() {
         return this.label;
+    }
+
+    @Override
+    public String getKind() {
+        return this.representation.getKind();
     }
 
     public IRepresentation getRepresentation() {
