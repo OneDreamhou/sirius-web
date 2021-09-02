@@ -116,7 +116,7 @@ public class RepresentationRepositoryIntegrationTests extends AbstractIntegratio
             assertThat(representationFound.getLabel()).isEqualTo(representationEntity.getLabel());
             assertThat(representationFound.getTargetObjectId()).isEqualTo(representationEntity.getTargetObjectId());
             assertThat(representationFound.getContent()).isEqualTo(representationEntity.getContent());
-            assertThat(representationFound.getContentType()).isEqualTo(representationEntity.getContentType());
+            assertThat(representationFound.getKind()).isEqualTo(representationEntity.getKind());
         });
     }
 
@@ -274,7 +274,7 @@ public class RepresentationRepositoryIntegrationTests extends AbstractIntegratio
         representationEntity.setLabel(label);
         representationEntity.setProject(projectEntity);
         representationEntity.setTargetObjectId(targetObjectId);
-        representationEntity.setContentType("Diagram"); //$NON-NLS-1$
+        representationEntity.setKind("Diagram"); //$NON-NLS-1$
         representationEntity.setContent("{ \"nodes\": [], \"edges\": []}"); //$NON-NLS-1$
         return representationEntity;
     }

@@ -64,7 +64,7 @@ public class RepresentationMapper {
         representationEntity.setProject(projectEntity);
         representationEntity.setLabel(representationDescriptor.getLabel());
         representationEntity.setTargetObjectId(representationDescriptor.getTargetObjectId());
-        representationEntity.setContentType(representationDescriptor.getRepresentation().getClass().getSimpleName());
+        representationEntity.setKind(representationDescriptor.getRepresentation().getKind());
         try {
             String content = this.objectMapper.writeValueAsString(representationDescriptor.getRepresentation());
             representationEntity.setContent(content);

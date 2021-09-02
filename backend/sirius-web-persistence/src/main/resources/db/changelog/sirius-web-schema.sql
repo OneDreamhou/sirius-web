@@ -45,7 +45,7 @@ CREATE TABLE representation (
     project_id uuid NOT NULL,
     targetobjectid text NOT NULL,
     label text NOT NULL,
-    contenttype text NOT NULL,
+    kind text NOT NULL,
     content text NOT NULL,
     CONSTRAINT representation_label_length CHECK (((char_length(label) > 0) AND (char_length(label) <= 50)))
 );

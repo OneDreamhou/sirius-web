@@ -40,7 +40,7 @@ public class RepresentationEntity {
 
     private String label;
 
-    private String contentType;
+    private String kind;
 
     private String content;
 
@@ -76,12 +76,12 @@ public class RepresentationEntity {
         this.label = label;
     }
 
-    public String getContentType() {
-        return this.contentType;
+    public String getKind() {
+        return this.kind;
     }
 
-    public void setContentType(String contentType) {
-        this.contentType = contentType;
+    public void setKind(String kind) {
+        this.kind = kind;
     }
 
     public String getContent() {
@@ -94,7 +94,7 @@ public class RepresentationEntity {
 
     @Override
     public String toString() {
-        String pattern = "{0} '{'id: {1}, targetObjectId: {2}, label: {3}, contentType: {4}'}'"; //$NON-NLS-1$
-        return MessageFormat.format(pattern, this.getClass().getSimpleName(), this.id, this.targetObjectId, this.label, this.contentType);
+        String pattern = "{0} '{'id: {1}, targetObjectId: {2}, label: {3}, kind: {4}'}'"; //$NON-NLS-1$
+        return MessageFormat.format(pattern, this.getClass().getSimpleName(), this.id, this.targetObjectId, this.label, this.kind);
     }
 }
