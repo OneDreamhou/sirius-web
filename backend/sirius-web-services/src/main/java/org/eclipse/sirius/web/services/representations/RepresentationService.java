@@ -29,6 +29,7 @@ import org.eclipse.sirius.web.persistence.repositories.IProjectRepository;
 import org.eclipse.sirius.web.persistence.repositories.IRepresentationRepository;
 import org.eclipse.sirius.web.representations.IRepresentation;
 import org.eclipse.sirius.web.representations.ISemanticRepresentation;
+import org.eclipse.sirius.web.representations.ISemanticRepresentationMetadata;
 import org.eclipse.sirius.web.services.api.representations.IRepresentationService;
 import org.eclipse.sirius.web.services.api.representations.RepresentationDescriptor;
 import org.eclipse.sirius.web.spring.collaborative.api.IDanglingRepresentationDeletionService;
@@ -97,9 +98,9 @@ public class RepresentationService implements IRepresentationService, IRepresent
     }
 
     @Override
-    public void save(IEditingContext editingContext, ISemanticRepresentation representation) {
+    public void save(IEditingContext editingContext, ISemanticRepresentationMetadata representationMetadata, ISemanticRepresentation representation) {
         long start = System.currentTimeMillis();
-        RepresentationDescriptor representationDescriptor = this.getRepresentationDescriptor(editingContext.getId(), representation);
+        RepresentationDescriptor representationDescriptor = this.getRepresentationDescriptor(editingContext.getId(), representationMetadata, representation);
 
         var optionalProjectEntity = this.projectRepository.findById(representationDescriptor.getProjectId());
         if (optionalProjectEntity.isPresent()) {
@@ -112,13 +113,13 @@ public class RepresentationService implements IRepresentationService, IRepresent
         this.timer.record(end - start, TimeUnit.MILLISECONDS);
     }
 
-    private RepresentationDescriptor getRepresentationDescriptor(UUID editingContextId, ISemanticRepresentation representation) {
+    private RepresentationDescriptor getRepresentationDescriptor(UUID editingContextId, ISemanticRepresentationMetadata representationMetadata, ISemanticRepresentation representation) {
         // @formatter:off
-        return RepresentationDescriptor.newRepresentationDescriptor(representation.getId())
+        return RepresentationDescriptor.newRepresentationDescriptor(representationMetadata.getId())
                 .projectId(editingContextId)
-                .descriptionId(representation.getDescriptionId())
-                .targetObjectId(representation.getTargetObjectId())
-                .label(representation.getLabel())
+                .descriptionId(representationMetadata.getDescriptionId())
+                .targetObjectId(representationMetadata.getTargetObjectId())
+                .label(representationMetadata.getLabel())
                 .representation(representation)
                 .build();
         // @formatter:on
