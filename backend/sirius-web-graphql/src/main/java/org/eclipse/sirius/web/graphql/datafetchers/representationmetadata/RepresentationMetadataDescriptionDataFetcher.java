@@ -17,8 +17,8 @@ import java.util.UUID;
 
 import org.eclipse.sirius.web.annotations.spring.graphql.QueryDataFetcher;
 import org.eclipse.sirius.web.core.api.IRepresentationDescriptionSearchService;
-import org.eclipse.sirius.web.representations.IRepresentation;
 import org.eclipse.sirius.web.representations.IRepresentationDescription;
+import org.eclipse.sirius.web.representations.IRepresentationMetadata;
 import org.eclipse.sirius.web.spring.graphql.api.IDataFetcherWithFieldCoordinates;
 
 import graphql.schema.DataFetchingEnvironment;
@@ -47,8 +47,8 @@ public class RepresentationMetadataDescriptionDataFetcher implements IDataFetche
 
     @Override
     public IRepresentationDescription get(DataFetchingEnvironment environment) throws Exception {
-        IRepresentation representation = environment.getSource();
-        UUID descriptionId = representation.getDescriptionId();
+        IRepresentationMetadata representationMetadata = environment.getSource();
+        UUID descriptionId = representationMetadata.getDescriptionId();
         return this.representationDescriptionSearchService.findById(descriptionId).orElse(null);
     }
 
