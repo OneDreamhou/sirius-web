@@ -20,9 +20,8 @@ import java.util.stream.Collectors;
 
 import org.eclipse.sirius.web.annotations.spring.graphql.QueryDataFetcher;
 import org.eclipse.sirius.web.graphql.schema.EditingContextTypeProvider;
-import org.eclipse.sirius.web.representations.IRepresentation;
+import org.eclipse.sirius.web.representations.IRepresentationMetadata;
 import org.eclipse.sirius.web.services.api.representations.IRepresentationService;
-import org.eclipse.sirius.web.services.api.representations.RepresentationDescriptor;
 import org.eclipse.sirius.web.spring.graphql.api.IDataFetcherWithFieldCoordinates;
 
 import graphql.relay.Connection;
@@ -50,7 +49,7 @@ import graphql.schema.DataFetchingEnvironment;
  * @author wpiers
  */
 @QueryDataFetcher(type = EditingContextTypeProvider.TYPE, field = EditingContextTypeProvider.REPRESENTATIONS_FIELD)
-public class EditingContextRepresentationsDataFetcher implements IDataFetcherWithFieldCoordinates<Connection<IRepresentation>> {
+public class EditingContextRepresentationsDataFetcher implements IDataFetcherWithFieldCoordinates<Connection<IRepresentationMetadata>> {
 
     private final IRepresentationService representationService;
 
@@ -59,30 +58,31 @@ public class EditingContextRepresentationsDataFetcher implements IDataFetcherWit
     }
 
     @Override
-    public Connection<IRepresentation> get(DataFetchingEnvironment environment) throws Exception {
+    public Connection<IRepresentationMetadata> get(DataFetchingEnvironment environment) throws Exception {
         UUID editingContextId = environment.getSource();
         // @formatter:off
-        List<IRepresentation> representations = this.representationService.getRepresentationDescriptorsForProjectId(editingContextId).stream()
-                .map(RepresentationDescriptor::getRepresentation).collect(Collectors.toList());
+        List<IRepresentationMetadata> representationDescriptors = this.representationService.getRepresentationDescriptorsForProjectId(editingContextId).stream()
+                                                                      .map(IRepresentationMetadata.class::cast)
+                                                                      .collect(Collectors.toList());
         // @formatter:on
 
         // @formatter:off
-        List<Edge<IRepresentation>> representationEdges = representations.stream()
-                .map(representation -> {
-                    String value = Base64.getEncoder().encodeToString(representation.getId().toString().getBytes());
+        List<Edge<IRepresentationMetadata>> representationMetadataEdges = representationDescriptors.stream()
+                .map(representationMetadata -> {
+                    String value = Base64.getEncoder().encodeToString(representationMetadata.getId().toString().getBytes());
                     ConnectionCursor cursor = new DefaultConnectionCursor(value);
-                    return new DefaultEdge<>(representation, cursor);
+                    return new DefaultEdge<>(representationMetadata, cursor);
                 })
                 .collect(Collectors.toList());
         // @formatter:on
 
-        ConnectionCursor startCursor = representationEdges.stream().findFirst().map(Edge::getCursor).orElse(null);
+        ConnectionCursor startCursor = representationMetadataEdges.stream().findFirst().map(Edge::getCursor).orElse(null);
         ConnectionCursor endCursor = null;
-        if (!representationEdges.isEmpty()) {
-            endCursor = representationEdges.get(representationEdges.size() - 1).getCursor();
+        if (!representationMetadataEdges.isEmpty()) {
+            endCursor = representationMetadataEdges.get(representationMetadataEdges.size() - 1).getCursor();
         }
         PageInfo pageInfo = new DefaultPageInfo(startCursor, endCursor, false, false);
-        return new DefaultConnection<>(representationEdges, pageInfo);
+        return new DefaultConnection<>(representationMetadataEdges, pageInfo);
     }
 
 }
