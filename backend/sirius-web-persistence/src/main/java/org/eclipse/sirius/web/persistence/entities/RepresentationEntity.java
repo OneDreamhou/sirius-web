@@ -38,6 +38,8 @@ public class RepresentationEntity {
 
     private String targetObjectId;
 
+    private String descriptionId;
+
     private String label;
 
     private String kind;
@@ -50,6 +52,14 @@ public class RepresentationEntity {
 
     public void setId(UUID id) {
         this.id = id;
+    }
+
+    public String getDescriptionId() {
+        return this.descriptionId;
+    }
+
+    public void setDescriptionId(String descriptionId) {
+        this.descriptionId = descriptionId;
     }
 
     public ProjectEntity getProject() {

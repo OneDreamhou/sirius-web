@@ -16,6 +16,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Objects;
+import java.util.UUID;
 
 import org.eclipse.sirius.web.persistence.entities.ProjectEntity;
 import org.eclipse.sirius.web.persistence.entities.RepresentationEntity;
@@ -46,7 +47,7 @@ public class RepresentationMapper {
             return RepresentationDescriptor.newRepresentationDescriptor(representationEntity.getId())
                     .label(representationEntity.getLabel())
                     .projectId(representationEntity.getProject().getId())
-                    .descriptionId(representation.getDescriptionId())
+                    .descriptionId(UUID.fromString(representationEntity.getDescriptionId()))
                     .targetObjectId(representationEntity.getTargetObjectId())
                     .representation(representation)
                     .build();
@@ -63,6 +64,7 @@ public class RepresentationMapper {
         representationEntity.setId(representationDescriptor.getId());
         representationEntity.setProject(projectEntity);
         representationEntity.setLabel(representationDescriptor.getLabel());
+        representationEntity.setDescriptionId(representationDescriptor.getDescriptionId().toString());
         representationEntity.setTargetObjectId(representationDescriptor.getTargetObjectId());
         representationEntity.setKind(representationDescriptor.getRepresentation().getKind());
         try {

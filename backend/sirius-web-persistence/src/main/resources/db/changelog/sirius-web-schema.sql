@@ -44,6 +44,7 @@ CREATE TABLE representation (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     project_id uuid NOT NULL,
     targetobjectid text NOT NULL,
+    descriptionid text NOT NULL,
     label text NOT NULL,
     kind text NOT NULL,
     content text NOT NULL,
