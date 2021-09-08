@@ -49,6 +49,7 @@ public class RepresentationMapper {
                     .projectId(representationEntity.getProject().getId())
                     .descriptionId(UUID.fromString(representationEntity.getDescriptionId()))
                     .targetObjectId(representationEntity.getTargetObjectId())
+                    .kind(representationEntity.getKind())
                     .representation(representation)
                     .build();
             // @formatter:on
@@ -66,7 +67,7 @@ public class RepresentationMapper {
         representationEntity.setLabel(representationDescriptor.getLabel());
         representationEntity.setDescriptionId(representationDescriptor.getDescriptionId().toString());
         representationEntity.setTargetObjectId(representationDescriptor.getTargetObjectId());
-        representationEntity.setKind(representationDescriptor.getRepresentation().getKind());
+        representationEntity.setKind(representationDescriptor.getKind());
         try {
             String content = this.objectMapper.writeValueAsString(representationDescriptor.getRepresentation());
             representationEntity.setContent(content);

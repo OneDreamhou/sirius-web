@@ -41,7 +41,6 @@ import org.eclipse.sirius.web.emf.services.IEditingContextEPackageService;
 import org.eclipse.sirius.web.emf.services.SiriusWebJSONResourceFactoryImpl;
 import org.eclipse.sirius.web.persistence.entities.IdMappingEntity;
 import org.eclipse.sirius.web.persistence.repositories.IIdMappingRepository;
-import org.eclipse.sirius.web.representations.IRepresentation;
 import org.eclipse.sirius.web.services.api.document.Document;
 import org.eclipse.sirius.web.services.api.document.IDocumentService;
 import org.eclipse.sirius.web.services.api.projects.IProjectExportService;
@@ -233,7 +232,6 @@ public class ProjectExportService implements IProjectExportService {
      * @return the {@link RepresentationManifest} for the given {@link RepresentationDescriptor}
      */
     private RepresentationManifest createRepresentationManifest(RepresentationDescriptor representationDescriptor, ResourceSet resourceSet) {
-        IRepresentation representation = representationDescriptor.getRepresentation();
         UUID descriptionId = representationDescriptor.getDescriptionId();
 
         /*
@@ -260,7 +258,7 @@ public class ProjectExportService implements IProjectExportService {
         }
         // @formatter:off
         return RepresentationManifest.newRepresentationManifest()
-            .type(representation.getKind())
+            .type(representationDescriptor.getKind())
             .descriptionURI(descriptionURI)
             .targetObjectURI(uriFragment)
             .build();

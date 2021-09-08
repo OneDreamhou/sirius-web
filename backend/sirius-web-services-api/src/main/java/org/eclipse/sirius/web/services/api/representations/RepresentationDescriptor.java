@@ -36,6 +36,8 @@ public class RepresentationDescriptor implements ISemanticRepresentationMetadata
 
     private String label;
 
+    private String kind;
+
     private IRepresentation representation;
 
     @Override
@@ -64,7 +66,7 @@ public class RepresentationDescriptor implements ISemanticRepresentationMetadata
 
     @Override
     public String getKind() {
-        return this.representation.getKind();
+        return this.kind;
     }
 
     public IRepresentation getRepresentation() {
@@ -92,6 +94,8 @@ public class RepresentationDescriptor implements ISemanticRepresentationMetadata
 
         private String label;
 
+        private String kind;
+
         private IRepresentation representation;
 
         public Builder(UUID id) {
@@ -118,6 +122,11 @@ public class RepresentationDescriptor implements ISemanticRepresentationMetadata
             return this;
         }
 
+        public Builder kind(String kind) {
+            this.kind = Objects.requireNonNull(kind);
+            return this;
+        }
+
         public Builder representation(IRepresentation representation) {
             this.representation = Objects.requireNonNull(representation);
             return this;
@@ -130,6 +139,7 @@ public class RepresentationDescriptor implements ISemanticRepresentationMetadata
             representationDescriptor.descriptionId = Objects.requireNonNull(this.descriptionId);
             representationDescriptor.targetObjectId = Objects.requireNonNull(this.targetObjectId);
             representationDescriptor.label = Objects.requireNonNull(this.label);
+            representationDescriptor.kind = Objects.requireNonNull(this.kind);
             representationDescriptor.representation = Objects.requireNonNull(this.representation);
             return representationDescriptor;
         }
