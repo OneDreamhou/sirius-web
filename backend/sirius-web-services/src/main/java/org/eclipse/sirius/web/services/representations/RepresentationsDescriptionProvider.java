@@ -30,6 +30,7 @@ import org.eclipse.sirius.web.forms.description.GroupDescription;
 import org.eclipse.sirius.web.forms.description.ListDescription;
 import org.eclipse.sirius.web.forms.description.PageDescription;
 import org.eclipse.sirius.web.representations.GetOrCreateRandomIdProvider;
+import org.eclipse.sirius.web.representations.IRepresentation;
 import org.eclipse.sirius.web.representations.VariableManager;
 import org.eclipse.sirius.web.services.api.representations.IRepresentationService;
 import org.eclipse.sirius.web.services.api.representations.RepresentationDescriptor;
@@ -117,6 +118,7 @@ public class RepresentationsDescriptionProvider implements IRepresentationsDescr
             .itemActionProvider(this.getItemActionProvider())
             .itemActionTooltipProvider(this.getItemActionTooltipProvider())
             .itemActionIconNameProvider(this.getItemActionIconNameProvider())
+            .itemKindProvider(this.getItemKindProvider())
             .diagnosticsProvider((variableManager) -> List.of())
             .kindProvider((object) -> "") //$NON-NLS-1$
             .messageProvider((object) -> "") //$NON-NLS-1$
@@ -182,6 +184,17 @@ public class RepresentationsDescriptionProvider implements IRepresentationsDescr
             // @formatter:off
             return variableManager.get(ListComponent.CANDIDATE_VARIABLE, RepresentationDescriptor.class)
                     .map(RepresentationDescriptor::getLabel)
+                    .orElse(null);
+            // @formatter:on
+        };
+    }
+
+    private Function<VariableManager, String> getItemKindProvider() {
+        return variableManager -> {
+            // @formatter:off
+            return variableManager.get(ListComponent.CANDIDATE_VARIABLE, RepresentationDescriptor.class)
+                    .map(RepresentationDescriptor::getRepresentation)
+                    .map(IRepresentation::getKind)
                     .orElse(null);
             // @formatter:on
         };
