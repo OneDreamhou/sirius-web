@@ -115,9 +115,7 @@ public class RepresentationsDescriptionProvider implements IRepresentationsDescr
             .itemIdProvider(this.getItemIdProvider())
             .itemLabelProvider(this.getItemLabelProvider())
             .itemImageURLProvider(this.getItemImageURLProvider())
-            .itemActionProvider(this.getItemActionProvider())
-            .itemActionTooltipProvider(this.getItemActionTooltipProvider())
-            .itemActionIconNameProvider(this.getItemActionIconNameProvider())
+            .itemDeletableProvider(this.getItemDeletableProvider())
             .itemKindProvider(this.getItemKindProvider())
             .diagnosticsProvider((variableManager) -> List.of())
             .kindProvider((object) -> "") //$NON-NLS-1$
@@ -137,27 +135,9 @@ public class RepresentationsDescriptionProvider implements IRepresentationsDescr
         // @formatter:on
     }
 
-    private Function<VariableManager, String> getItemActionIconNameProvider() {
+    private Function<VariableManager, Boolean> getItemDeletableProvider() {
         return variableManager -> {
-            return "DeleteIcon"; //$NON-NLS-1$
-        };
-    }
-
-    private Function<VariableManager, String> getItemActionTooltipProvider() {
-        return variableManager -> {
-            // @formatter:off
-            return variableManager.get(ListComponent.ACTION_VARIABLE, RepresentationDescriptor.class)
-                    .map(RepresentationDescriptor::getLabel)
-                    .map(label -> String.format("Delete %1$s", label)) //$NON-NLS-1$
-                    .orElse("Delete this representation"); //$NON-NLS-1$
-            // @formatter:on
-        };
-    }
-
-    private Function<VariableManager, Object> getItemActionProvider() {
-        return variableManager -> {
-            Object object = variableManager.getVariables().get(ListComponent.CANDIDATE_VARIABLE);
-            return object;
+            return true;
         };
     }
 
