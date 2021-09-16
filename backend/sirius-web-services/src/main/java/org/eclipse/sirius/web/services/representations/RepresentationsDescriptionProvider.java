@@ -29,13 +29,18 @@ import org.eclipse.sirius.web.forms.description.FormDescription;
 import org.eclipse.sirius.web.forms.description.GroupDescription;
 import org.eclipse.sirius.web.forms.description.ListDescription;
 import org.eclipse.sirius.web.forms.description.PageDescription;
+import org.eclipse.sirius.web.representations.Failure;
 import org.eclipse.sirius.web.representations.GetOrCreateRandomIdProvider;
 import org.eclipse.sirius.web.representations.IRepresentation;
+import org.eclipse.sirius.web.representations.IStatus;
+import org.eclipse.sirius.web.representations.Success;
 import org.eclipse.sirius.web.representations.VariableManager;
 import org.eclipse.sirius.web.services.api.representations.IRepresentationService;
 import org.eclipse.sirius.web.services.api.representations.RepresentationDescriptor;
+import org.eclipse.sirius.web.spring.collaborative.api.ChangeKind;
 import org.eclipse.sirius.web.spring.collaborative.api.IRepresentationImageProvider;
 import org.eclipse.sirius.web.spring.collaborative.forms.api.IRepresentationsDescriptionProvider;
+import org.eclipse.sirius.web.spring.collaborative.forms.handlers.DeleteListItemEventHandler;
 import org.springframework.stereotype.Service;
 
 /**
@@ -45,6 +50,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class RepresentationsDescriptionProvider implements IRepresentationsDescriptionProvider {
+
+    public static final String REPRESENTATIONS_DEFAULT_FORM_DESCRIPTION_ID = "representations_default_form_description"; //$NON-NLS-1$
 
     private final IObjectService objectService;
 
@@ -80,7 +87,7 @@ public class RepresentationsDescriptionProvider implements IRepresentationsDescr
                 .map(this.objectService::getId)
                 .orElse(null);
 
-        return FormDescription.newFormDescription(UUID.nameUUIDFromBytes("representations_default_form_description".getBytes())) //$NON-NLS-1$
+        return FormDescription.newFormDescription(UUID.nameUUIDFromBytes(REPRESENTATIONS_DEFAULT_FORM_DESCRIPTION_ID.getBytes()))
                 .label("Representations default form description") //$NON-NLS-1$
                 .idProvider(new GetOrCreateRandomIdProvider())
                 .labelProvider(labelProvider)
@@ -116,6 +123,7 @@ public class RepresentationsDescriptionProvider implements IRepresentationsDescr
             .itemLabelProvider(this.getItemLabelProvider())
             .itemImageURLProvider(this.getItemImageURLProvider())
             .itemDeletableProvider(this.getItemDeletableProvider())
+            .itemDeleteHandler(this.getItemDeleteHandlerProvider())
             .itemKindProvider(this.getItemKindProvider())
             .diagnosticsProvider((variableManager) -> List.of())
             .kindProvider((object) -> "") //$NON-NLS-1$
@@ -133,6 +141,23 @@ public class RepresentationsDescriptionProvider implements IRepresentationsDescr
                 .controlDescriptions(controlDescriptions)
                 .build();
         // @formatter:on
+    }
+
+    private Function<VariableManager, IStatus> getItemDeleteHandlerProvider() {
+        return variableManager -> {
+            // @formatter:off
+            return variableManager.get(ListComponent.CANDIDATE_VARIABLE, RepresentationDescriptor.class)
+                    .map(RepresentationDescriptor::getId)
+                    .map(representationId -> {
+                        return Success.newSuccess()
+                            .addParameter(DeleteListItemEventHandler.OBJECT_ID_TO_DELETE, representationId)
+                            .addParameter(DeleteListItemEventHandler.CHANGE_KIND, ChangeKind.REPRESENTATION_TO_DELETE)
+                            .addParameter(DeleteListItemEventHandler.CHANGE_DESCRIPTION_PARAMETER_KEY, "representationId") //$NON-NLS-1$
+                            .build();
+                    })
+                    .orElse(new Failure());
+            // @formatter:on
+        };
     }
 
     private Function<VariableManager, Boolean> getItemDeletableProvider() {
