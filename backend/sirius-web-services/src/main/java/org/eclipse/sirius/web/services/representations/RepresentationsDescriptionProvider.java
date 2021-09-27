@@ -123,7 +123,7 @@ public class RepresentationsDescriptionProvider implements IRepresentationsDescr
             .itemLabelProvider(this.getItemLabelProvider())
             .itemImageURLProvider(this.getItemImageURLProvider())
             .itemDeletableProvider(this.getItemDeletableProvider())
-            .itemDeleteHandler(this.getItemDeleteHandlerProvider())
+            .itemDeleteHandlerProvider(this.getItemDeleteHandlerProvider())
             .itemKindProvider(this.getItemKindProvider())
             .diagnosticsProvider((variableManager) -> List.of())
             .kindProvider((object) -> "") //$NON-NLS-1$
