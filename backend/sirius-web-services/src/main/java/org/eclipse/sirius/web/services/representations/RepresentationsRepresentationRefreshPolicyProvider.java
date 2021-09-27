@@ -41,7 +41,25 @@ public class RepresentationsRepresentationRefreshPolicyProvider implements IRepr
     @Override
     public IRepresentationRefreshPolicy getRepresentationRefreshPolicy(IRepresentationDescription representationDescription) {
         return (changeDescription) -> {
-            return ChangeKind.REPRESENTATION_TO_DELETE.equals(changeDescription.getKind());
+            boolean shouldRefresh = false;
+
+            switch (changeDescription.getKind()) {
+            case ChangeKind.REPRESENTATION_CREATION:
+                shouldRefresh = true;
+                break;
+            case ChangeKind.REPRESENTATION_DELETION:
+                shouldRefresh = true;
+                break;
+            case ChangeKind.REPRESENTATION_RENAMING:
+                shouldRefresh = true;
+                break;
+            case ChangeKind.REPRESENTATION_TO_DELETE:
+                shouldRefresh = true;
+                break;
+            default:
+                shouldRefresh = false;
+            }
+            return shouldRefresh;
         };
     }
 
