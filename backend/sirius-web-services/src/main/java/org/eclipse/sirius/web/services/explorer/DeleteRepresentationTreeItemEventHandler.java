@@ -18,10 +18,10 @@ import java.util.UUID;
 import org.eclipse.sirius.web.core.api.ErrorPayload;
 import org.eclipse.sirius.web.core.api.IEditingContext;
 import org.eclipse.sirius.web.core.api.IInput;
+import org.eclipse.sirius.web.core.api.IPayload;
 import org.eclipse.sirius.web.services.api.representations.IRepresentationService;
 import org.eclipse.sirius.web.spring.collaborative.api.ChangeDescription;
 import org.eclipse.sirius.web.spring.collaborative.api.ChangeKind;
-import org.eclipse.sirius.web.spring.collaborative.api.EventHandlerResponse;
 import org.eclipse.sirius.web.spring.collaborative.api.IEditingContextEventHandler;
 import org.eclipse.sirius.web.spring.collaborative.api.Monitoring;
 import org.eclipse.sirius.web.spring.collaborative.messages.ICollaborativeMessageService;
@@ -30,6 +30,8 @@ import org.eclipse.sirius.web.spring.collaborative.trees.dto.DeleteTreeItemSucce
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
+import reactor.core.publisher.Sinks.Many;
+import reactor.core.publisher.Sinks.One;
 
 /**
  * Handles representation deletion triggered via a tree item from the explorer.
@@ -56,7 +58,7 @@ public class DeleteRepresentationTreeItemEventHandler implements IEditingContext
     }
 
     @Override
-    public boolean canHandle(IInput input) {
+    public boolean canHandle(IEditingContext editingContext, IInput input) {
         // @formatter:off
         return input instanceof DeleteTreeItemInput &&
                !(this.isDomainObjectKind(((DeleteTreeItemInput) input).getKind()) ||
@@ -70,20 +72,22 @@ public class DeleteRepresentationTreeItemEventHandler implements IEditingContext
     }
 
     @Override
-    public EventHandlerResponse handle(IEditingContext editingContext, IInput input) {
+    public void handle(One<IPayload> payloadSink, Many<ChangeDescription> changeDescriptionSink, IEditingContext editingContext, IInput input) {
         this.counter.increment();
 
         String message = this.messageService.invalidInput(input.getClass().getSimpleName(), DeleteTreeItemInput.class.getSimpleName());
-        EventHandlerResponse eventHandlerResponse = new EventHandlerResponse(new ChangeDescription(ChangeKind.NOTHING, editingContext.getId()), new ErrorPayload(input.getId(), message));
+        ChangeDescription changeDescription = new ChangeDescription(ChangeKind.NOTHING, editingContext.getId(), input);
+        IPayload payload = new ErrorPayload(input.getId(), message);
         if (input instanceof DeleteTreeItemInput) {
             DeleteTreeItemInput deleteRepresentationInput = (DeleteTreeItemInput) input;
             UUID representationId = deleteRepresentationInput.getTreeItemId();
             if (this.representationService.existsById(representationId)) {
                 this.representationService.delete(representationId);
-                eventHandlerResponse = new EventHandlerResponse(new ChangeDescription(ChangeKind.REPRESENTATION_DELETION, editingContext.getId()), new DeleteTreeItemSuccessPayload(input.getId()));
+                payload = new DeleteTreeItemSuccessPayload(input.getId());
+                changeDescription = new ChangeDescription(ChangeKind.REPRESENTATION_DELETION, editingContext.getId(), input);
             }
         }
-
-        return eventHandlerResponse;
+        payloadSink.tryEmitValue(payload);
+        changeDescriptionSink.tryEmitNext(changeDescription);
     }
 }

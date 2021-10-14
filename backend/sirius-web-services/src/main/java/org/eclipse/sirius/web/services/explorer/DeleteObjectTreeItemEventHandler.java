@@ -20,9 +20,9 @@ import org.eclipse.sirius.web.core.api.IEditService;
 import org.eclipse.sirius.web.core.api.IEditingContext;
 import org.eclipse.sirius.web.core.api.IInput;
 import org.eclipse.sirius.web.core.api.IObjectService;
+import org.eclipse.sirius.web.core.api.IPayload;
 import org.eclipse.sirius.web.spring.collaborative.api.ChangeDescription;
 import org.eclipse.sirius.web.spring.collaborative.api.ChangeKind;
-import org.eclipse.sirius.web.spring.collaborative.api.EventHandlerResponse;
 import org.eclipse.sirius.web.spring.collaborative.api.IEditingContextEventHandler;
 import org.eclipse.sirius.web.spring.collaborative.api.Monitoring;
 import org.eclipse.sirius.web.spring.collaborative.messages.ICollaborativeMessageService;
@@ -34,6 +34,8 @@ import org.springframework.stereotype.Service;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
+import reactor.core.publisher.Sinks.Many;
+import reactor.core.publisher.Sinks.One;
 
 /**
  * Handles semantic object deletion triggered via a tree item from the explorer.
@@ -66,7 +68,7 @@ public class DeleteObjectTreeItemEventHandler implements IEditingContextEventHan
     }
 
     @Override
-    public boolean canHandle(IInput input) {
+    public boolean canHandle(IEditingContext editingContext, IInput input) {
         return input instanceof DeleteTreeItemInput && this.isDomainObjectKind(((DeleteTreeItemInput) input).getKind());
     }
 
@@ -76,7 +78,7 @@ public class DeleteObjectTreeItemEventHandler implements IEditingContextEventHan
     }
 
     @Override
-    public EventHandlerResponse handle(IEditingContext editingContext, IInput input) {
+    public void handle(One<IPayload> payloadSink, Many<ChangeDescription> changeDescriptionSink, IEditingContext editingContext, IInput input) {
         this.counter.increment();
 
         if (input instanceof DeleteTreeItemInput) {
@@ -87,13 +89,17 @@ public class DeleteObjectTreeItemEventHandler implements IEditingContextEventHan
                 Object object = optionalObject.get();
                 this.editService.delete(object);
 
-                return new EventHandlerResponse(new ChangeDescription(ChangeKind.SEMANTIC_CHANGE, editingContext.getId()), new DeleteTreeItemSuccessPayload(input.getId()));
+                ChangeDescription changeDescription = new ChangeDescription(ChangeKind.SEMANTIC_CHANGE, editingContext.getId(), input);
+                DeleteTreeItemSuccessPayload payload = new DeleteTreeItemSuccessPayload(input.getId());
+                payloadSink.tryEmitValue(payload);
+                changeDescriptionSink.tryEmitNext(changeDescription);
             } else {
                 this.logger.warn("The object with the id {} does not exist", deleteObjectInput.getTreeItemId()); //$NON-NLS-1$
             }
         }
 
         String message = this.messageService.invalidInput(input.getClass().getSimpleName(), DeleteTreeItemInput.class.getSimpleName());
-        return new EventHandlerResponse(new ChangeDescription(ChangeKind.NOTHING, editingContext.getId()), new ErrorPayload(input.getId(), message));
+        payloadSink.tryEmitValue(new ErrorPayload(input.getId(), message));
+        changeDescriptionSink.tryEmitNext(new ChangeDescription(ChangeKind.NOTHING, editingContext.getId(), input));
     }
 }

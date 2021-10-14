@@ -15,6 +15,7 @@ package org.eclipse.sirius.web.graphql.datafetchers.mutation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.sirius.web.annotations.graphql.GraphQLMutationTypes;
 import org.eclipse.sirius.web.annotations.spring.graphql.MutationDataFetcher;
@@ -53,7 +54,7 @@ import graphql.schema.DataFetchingEnvironment;
 )
 @MutationDataFetcher(type = MutationTypeProvider.TYPE, field = MutationRenameTreeItemDataFetcher.RENAME_TREE_ITEM_FIELD)
 // @formatter:on
-public class MutationRenameTreeItemDataFetcher implements IDataFetcherWithFieldCoordinates<IPayload> {
+public class MutationRenameTreeItemDataFetcher implements IDataFetcherWithFieldCoordinates<CompletableFuture<IPayload>> {
 
     public static final String RENAME_TREE_ITEM_FIELD = "renameTreeItem"; //$NON-NLS-1$
 
@@ -70,13 +71,14 @@ public class MutationRenameTreeItemDataFetcher implements IDataFetcherWithFieldC
     }
 
     @Override
-    public IPayload get(DataFetchingEnvironment environment) throws Exception {
+    public CompletableFuture<IPayload> get(DataFetchingEnvironment environment) throws Exception {
         Object argument = environment.getArgument(MutationTypeProvider.INPUT_ARGUMENT);
         var input = this.objectMapper.convertValue(argument, RenameTreeItemInput.class);
 
         // @formatter:off
         return this.editingContextEventProcessorRegistry.dispatchEvent(input.getEditingContextId(), input)
-                   .orElse(new ErrorPayload(input.getId(), this.messageService.unexpectedError()));
+                   .defaultIfEmpty(new ErrorPayload(input.getId(), this.messageService.unexpectedError()))
+                   .toFuture();
         // @formatter:on
     }
 
