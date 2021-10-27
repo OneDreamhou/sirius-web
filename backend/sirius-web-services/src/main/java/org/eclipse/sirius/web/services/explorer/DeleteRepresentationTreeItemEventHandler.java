@@ -27,6 +27,7 @@ import org.eclipse.sirius.web.spring.collaborative.api.Monitoring;
 import org.eclipse.sirius.web.spring.collaborative.messages.ICollaborativeMessageService;
 import org.eclipse.sirius.web.spring.collaborative.trees.dto.DeleteTreeItemInput;
 import org.eclipse.sirius.web.spring.collaborative.trees.dto.DeleteTreeItemSuccessPayload;
+import org.springframework.stereotype.Service;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -38,6 +39,7 @@ import reactor.core.publisher.Sinks.One;
  *
  * @author pcdavid
  */
+@Service
 public class DeleteRepresentationTreeItemEventHandler implements IEditingContextEventHandler {
 
     private final IRepresentationService representationService;

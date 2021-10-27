@@ -47,7 +47,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class ExplorerDescriptionProvider implements IExplorerDescriptionProvider {
 
-    private static final String DOCUMENT_KIND = "Document"; //$NON-NLS-1$
+    private static final String DOCUMENT_KIND = "Model"; //$NON-NLS-1$
 
     private final IObjectService objectService;
 
@@ -132,6 +132,9 @@ public class ExplorerDescriptionProvider implements IExplorerDescriptionProvider
             // @formatter:on
         } else if (self instanceof EObject) {
             label = this.objectService.getLabel(self);
+            if (label.isBlank()) {
+                label = this.objectService.getKind(self).replaceAll("^.*::", ""); //$NON-NLS-1$ //$NON-NLS-2$
+            }
         }
         return label;
     }

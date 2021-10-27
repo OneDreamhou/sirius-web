@@ -83,9 +83,7 @@ const useEditProjectViewStyles = makeStyles((theme) => ({
 }));
 
 const documentItemHandler: TreeItemHandler = {
-  handles: (treeItem) => treeItem.kind === 'Document',
-  getItemTitle: (item) => 'Model',
-  getItemLabel: (item) => item.label,
+  handles: (treeItem) => treeItem.kind === 'Model',
   getModal: (name) => {
     if (name === 'CreateNewRootObject') {
       return NewRootObjectModal;
@@ -126,14 +124,6 @@ const documentItemHandler: TreeItemHandler = {
 
 const semanticObjectItemHandler: TreeItemHandler = {
   handles: (treeItem) => treeItem.kind !== null && treeItem.kind.includes('::'),
-  getItemTitle: (item) => item.kind,
-  getItemLabel: (item) => {
-    if (item.label) {
-      return item.label;
-    } else {
-      return item.kind.split('::').pop();
-    }
-  },
   getModal: (name) => {
     if (name === 'CreateNewObject') {
       return NewObjectModal;

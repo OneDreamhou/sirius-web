@@ -50,7 +50,7 @@ import reactor.core.publisher.Sinks.One;
 @Service
 public class DeleteDocumentTreeItemEventHandler implements IEditingContextEventHandler {
 
-    public static final String DOCUMENT_ITEM_KIND = "Document"; //$NON-NLS-1$
+    public static final String DOCUMENT_ITEM_KIND = "Model"; //$NON-NLS-1$
 
     private final IDocumentService documentService;
 

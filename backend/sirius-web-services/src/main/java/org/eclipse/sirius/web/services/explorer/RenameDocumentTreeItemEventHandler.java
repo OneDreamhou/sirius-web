@@ -48,7 +48,7 @@ import reactor.core.publisher.Sinks.One;
 @Service
 public class RenameDocumentTreeItemEventHandler implements IEditingContextEventHandler {
 
-    private static final String DOCUMENT_ITEM_KIND = "Document"; //$NON-NLS-1$
+    private static final String DOCUMENT_ITEM_KIND = "Model"; //$NON-NLS-1$
 
     private final IDocumentService documentService;
 
