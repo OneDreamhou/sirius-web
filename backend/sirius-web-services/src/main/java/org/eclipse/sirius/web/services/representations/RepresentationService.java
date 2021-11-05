@@ -28,7 +28,7 @@ import org.eclipse.sirius.web.persistence.entities.RepresentationEntity;
 import org.eclipse.sirius.web.persistence.repositories.IProjectRepository;
 import org.eclipse.sirius.web.persistence.repositories.IRepresentationRepository;
 import org.eclipse.sirius.web.representations.IRepresentation;
-import org.eclipse.sirius.web.representations.ISemanticRepresentation;
+import org.eclipse.sirius.web.representations.IRepresentationMetadata;
 import org.eclipse.sirius.web.representations.ISemanticRepresentationMetadata;
 import org.eclipse.sirius.web.services.api.representations.IRepresentationService;
 import org.eclipse.sirius.web.services.api.representations.RepresentationDescriptor;
@@ -75,30 +75,30 @@ public class RepresentationService implements IRepresentationService, IRepresent
     }
 
     @Override
-    public Optional<RepresentationDescriptor> getRepresentationDescriptorForProjectId(UUID projectId, UUID representationId) {
-        return this.representationRepository.findByIdAndProjectId(representationId, projectId).map(new RepresentationMapper(this.objectMapper)::toDTO);
+    public Optional<IRepresentationMetadata> getRepresentationDescriptorForProjectId(UUID projectId, UUID representationId) {
+        return this.representationRepository.findByIdAndProjectId(representationId, projectId).map(new RepresentationMapper(this.objectMapper)::toRepresentationMetadataDTO);
     }
 
     @Override
-    public List<RepresentationDescriptor> getRepresentationDescriptorsForProjectId(UUID projectId) {
+    public List<IRepresentationMetadata> getRepresentationDescriptorsForProjectId(UUID projectId) {
         // @formatter:off
         return this.representationRepository.findAllByProjectId(projectId).stream()
-                .map(new RepresentationMapper(this.objectMapper)::toDTO)
+                .map(new RepresentationMapper(this.objectMapper)::toRepresentationMetadataDTO)
                 .collect(Collectors.toUnmodifiableList());
         // @formatter:on
     }
 
     @Override
-    public List<RepresentationDescriptor> getRepresentationDescriptorsForObjectId(String objectId) {
+    public List<IRepresentationMetadata> getRepresentationDescriptorsForObjectId(String objectId) {
         // @formatter:off
         return this.representationRepository.findAllByTargetObjectId(objectId).stream()
-                .map(new RepresentationMapper(this.objectMapper)::toDTO)
+                .map(new RepresentationMapper(this.objectMapper)::toRepresentationMetadataDTO)
                 .collect(Collectors.toUnmodifiableList());
         // @formatter:on
     }
 
     @Override
-    public void save(IEditingContext editingContext, ISemanticRepresentationMetadata representationMetadata, ISemanticRepresentation representation) {
+    public void save(IEditingContext editingContext, ISemanticRepresentationMetadata representationMetadata, IRepresentation representation) {
         long start = System.currentTimeMillis();
         RepresentationDescriptor representationDescriptor = this.getRepresentationDescriptor(editingContext.getId(), representationMetadata, representation);
 
@@ -113,7 +113,7 @@ public class RepresentationService implements IRepresentationService, IRepresent
         this.timer.record(end - start, TimeUnit.MILLISECONDS);
     }
 
-    private RepresentationDescriptor getRepresentationDescriptor(UUID editingContextId, ISemanticRepresentationMetadata representationMetadata, ISemanticRepresentation representation) {
+    private RepresentationDescriptor getRepresentationDescriptor(UUID editingContextId, ISemanticRepresentationMetadata representationMetadata, IRepresentation representation) {
         // @formatter:off
         return RepresentationDescriptor.newRepresentationDescriptor(representationMetadata.getId())
                 .projectId(editingContextId)
@@ -127,10 +127,10 @@ public class RepresentationService implements IRepresentationService, IRepresent
     }
 
     @Override
-    public Optional<RepresentationDescriptor> getRepresentation(UUID representationId) {
+    public Optional<IRepresentationMetadata> getRepresentation(UUID representationId) {
         // @formatter:off
         return this.representationRepository.findById(representationId)
-                .map(new RepresentationMapper(this.objectMapper)::toDTO);
+                .map(new RepresentationMapper(this.objectMapper)::toRepresentationMetadataDTO);
         // @formatter:off
     }
 
@@ -145,10 +145,10 @@ public class RepresentationService implements IRepresentationService, IRepresent
     }
 
     @Override
-    public boolean isDangling(IEditingContext editingContext, IRepresentation representation) {
-        if (representation instanceof ISemanticRepresentation) {
-            ISemanticRepresentation semanticRepresentation = (ISemanticRepresentation) representation;
-            String targetObjectId = semanticRepresentation.getTargetObjectId();
+    public boolean isDangling(IEditingContext editingContext, IRepresentationMetadata representationMetadata) {
+        if (representationMetadata instanceof ISemanticRepresentationMetadata) {
+            ISemanticRepresentationMetadata semanticRepresentationMetadata = (ISemanticRepresentationMetadata) representationMetadata;
+            String targetObjectId = semanticRepresentationMetadata.getTargetObjectId();
             Optional<Object> optionalObject = this.objectService.getObject(editingContext, targetObjectId);
             return optionalObject.isEmpty();
         }

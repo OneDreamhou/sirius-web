@@ -21,6 +21,8 @@ import java.util.UUID;
 import org.eclipse.sirius.web.persistence.entities.ProjectEntity;
 import org.eclipse.sirius.web.persistence.entities.RepresentationEntity;
 import org.eclipse.sirius.web.representations.IRepresentation;
+import org.eclipse.sirius.web.representations.IRepresentationMetadata;
+import org.eclipse.sirius.web.representations.ISemanticRepresentationMetadata;
 import org.eclipse.sirius.web.services.api.representations.RepresentationDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,9 +42,40 @@ public class RepresentationMapper {
         this.objectMapper = Objects.requireNonNull(objectMapper);
     }
 
-    public RepresentationDescriptor toDTO(RepresentationEntity representationEntity) {
+    public IRepresentationMetadata toRepresentationMetadataDTO(RepresentationEntity representationEntity) {
+        return new ISemanticRepresentationMetadata() {
+
+            @Override
+            public UUID getId() {
+                return representationEntity.getId();
+            }
+
+            @Override
+            public UUID getDescriptionId() {
+                return UUID.fromString(representationEntity.getDescriptionId());
+            }
+
+            @Override
+            public String getLabel() {
+                return representationEntity.getLabel();
+            }
+
+            @Override
+            public String getKind() {
+                return representationEntity.getKind();
+            }
+
+            @Override
+            public String getTargetObjectId() {
+                return representationEntity.getTargetObjectId();
+            }
+
+        };
+    }
+
+    public RepresentationDescriptor toDTO(RepresentationEntity representationEntity, Class<? extends IRepresentation> representationType) {
         try {
-            IRepresentation representation = this.objectMapper.readValue(representationEntity.getContent(), IRepresentation.class);
+            IRepresentation representation = this.objectMapper.readValue(representationEntity.getContent(), representationType);
             // @formatter:off
             return RepresentationDescriptor.newRepresentationDescriptor(representationEntity.getId())
                     .label(representationEntity.getLabel())

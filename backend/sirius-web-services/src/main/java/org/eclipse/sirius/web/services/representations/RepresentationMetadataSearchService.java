@@ -42,7 +42,7 @@ public class RepresentationMetadataSearchService implements IRepresentationMetad
 
     @Override
     public Optional<IRepresentationMetadata> findById(IEditingContext editingContext, UUID representationId) {
-        return this.representationRepository.findById(representationId).map(new RepresentationMapper(this.objectMapper)::toDTO);
+        return this.representationRepository.findById(representationId).map(new RepresentationMapper(this.objectMapper)::toRepresentationMetadataDTO);
     }
 
 }

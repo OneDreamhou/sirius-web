@@ -41,6 +41,8 @@ import org.eclipse.sirius.web.emf.services.IEditingContextEPackageService;
 import org.eclipse.sirius.web.emf.services.SiriusWebJSONResourceFactoryImpl;
 import org.eclipse.sirius.web.persistence.entities.IdMappingEntity;
 import org.eclipse.sirius.web.persistence.repositories.IIdMappingRepository;
+import org.eclipse.sirius.web.representations.IRepresentationMetadata;
+import org.eclipse.sirius.web.representations.ISemanticRepresentationMetadata;
 import org.eclipse.sirius.web.services.api.document.Document;
 import org.eclipse.sirius.web.services.api.document.IDocumentService;
 import org.eclipse.sirius.web.services.api.projects.IProjectExportService;
@@ -202,11 +204,11 @@ public class ProjectExportService implements IProjectExportService {
      *             if an I/O error occurred
      */
     private Map<String, RepresentationManifest> addRepresentation(UUID projectId, String projectName, ZipOutputStream zippedout) throws IOException {
-        List<RepresentationDescriptor> representationsDescriptor = this.representationService.getRepresentationDescriptorsForProjectId(projectId);
+        List<IRepresentationMetadata> representationsDescriptor = this.representationService.getRepresentationDescriptorsForProjectId(projectId);
         Map<String, RepresentationManifest> representationManifests = new HashMap<>();
         ResourceSet resourceSet = this.loadAllDocuments(projectId);
 
-        for (RepresentationDescriptor representationDescriptor : representationsDescriptor) {
+        for (IRepresentationMetadata representationDescriptor : representationsDescriptor) {
             RepresentationManifest representationManifest = this.createRepresentationManifest(representationDescriptor, resourceSet);
             UUID representationId = representationDescriptor.getId();
             representationManifests.put(representationId.toString(), representationManifest);
@@ -231,7 +233,7 @@ public class ProjectExportService implements IProjectExportService {
      *            The {@link ResourceSet} containing all loaded documents
      * @return the {@link RepresentationManifest} for the given {@link RepresentationDescriptor}
      */
-    private RepresentationManifest createRepresentationManifest(RepresentationDescriptor representationDescriptor, ResourceSet resourceSet) {
+    private RepresentationManifest createRepresentationManifest(IRepresentationMetadata representationDescriptor, ResourceSet resourceSet) {
         UUID descriptionId = representationDescriptor.getDescriptionId();
 
         /*
@@ -245,12 +247,14 @@ public class ProjectExportService implements IProjectExportService {
         // @formatter:on
 
         String uriFragment = ""; //$NON-NLS-1$
-        String targetObjectId = representationDescriptor.getTargetObjectId();
-        for (Resource resource : resourceSet.getResources()) {
-            EObject eObject = resource.getEObject(targetObjectId);
-            if (eObject != null) {
-                uriFragment = EcoreUtil.getURI(eObject).toString();
-                break;
+        if (representationDescriptor instanceof ISemanticRepresentationMetadata) {
+            String targetObjectId = ((ISemanticRepresentationMetadata) representationDescriptor).getTargetObjectId();
+            for (Resource resource : resourceSet.getResources()) {
+                EObject eObject = resource.getEObject(targetObjectId);
+                if (eObject != null) {
+                    uriFragment = EcoreUtil.getURI(eObject).toString();
+                    break;
+                }
             }
         }
         if (uriFragment.isEmpty()) {

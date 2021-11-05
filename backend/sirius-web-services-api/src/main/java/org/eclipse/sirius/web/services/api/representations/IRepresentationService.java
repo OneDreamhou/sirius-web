@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.eclipse.sirius.web.representations.IRepresentationMetadata;
+
 /**
  * Interface to manipulate representations.
  *
@@ -25,13 +27,13 @@ public interface IRepresentationService {
 
     boolean hasRepresentations(String objectId);
 
-    Optional<RepresentationDescriptor> getRepresentationDescriptorForProjectId(UUID projectId, UUID representationId);
+    Optional<IRepresentationMetadata> getRepresentationDescriptorForProjectId(UUID projectId, UUID representationId);
 
-    List<RepresentationDescriptor> getRepresentationDescriptorsForProjectId(UUID projectId);
+    List<IRepresentationMetadata> getRepresentationDescriptorsForProjectId(UUID projectId);
 
-    List<RepresentationDescriptor> getRepresentationDescriptorsForObjectId(String objectId);
+    List<IRepresentationMetadata> getRepresentationDescriptorsForObjectId(String objectId);
 
-    Optional<RepresentationDescriptor> getRepresentation(UUID representationId);
+    Optional<IRepresentationMetadata> getRepresentation(UUID representationId);
 
     boolean existsById(UUID representationId);
 
