@@ -19,12 +19,10 @@ import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.sirius.web.annotations.graphql.GraphQLMutationTypes;
 import org.eclipse.sirius.web.annotations.spring.graphql.MutationDataFetcher;
-import org.eclipse.sirius.web.core.api.ErrorPayload;
 import org.eclipse.sirius.web.core.api.IPayload;
 import org.eclipse.sirius.web.graphql.messages.IGraphQLMessageService;
 import org.eclipse.sirius.web.graphql.schema.MutationTypeProvider;
 import org.eclipse.sirius.web.services.api.representations.IRepresentationService;
-import org.eclipse.sirius.web.services.api.representations.RepresentationDescriptor;
 import org.eclipse.sirius.web.spring.collaborative.api.IEditingContextEventProcessorRegistry;
 import org.eclipse.sirius.web.spring.collaborative.dto.DeleteRepresentationInput;
 import org.eclipse.sirius.web.spring.collaborative.dto.DeleteRepresentationSuccessPayload;
@@ -82,14 +80,7 @@ public class MutationDeleteRepresentationDataFetcher implements IDataFetcherWith
         Object argument = environment.getArgument(MutationTypeProvider.INPUT_ARGUMENT);
         var input = this.objectMapper.convertValue(argument, DeleteRepresentationInput.class);
 
-        // @formatter:off
-        return this.representationService.getRepresentation(input.getRepresentationId())
-                .map(RepresentationDescriptor::getProjectId)
-                .map(projectId -> this.editingContextEventProcessorRegistry.dispatchEvent(projectId, input))
-                .orElse(Mono.empty())
-                .defaultIfEmpty(new ErrorPayload(input.getId(), this.messageService.unexpectedError()))
-                .toFuture();
-        // @formatter:on
+        return Mono.<IPayload> empty().toFuture();
 
     }
 }

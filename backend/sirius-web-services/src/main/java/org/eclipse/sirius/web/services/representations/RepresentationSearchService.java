@@ -45,7 +45,7 @@ public class RepresentationSearchService implements IRepresentationSearchService
     public <T extends IRepresentation> Optional<T> findById(IEditingContext editingContext, UUID representationId, Class<T> representationClass) {
         // @formatter:off
         return this.representationRepository.findById(representationId)
-                .map(new RepresentationMapper(this.objectMapper)::toDTO)
+                .map(representationEntity -> new RepresentationMapper(this.objectMapper).toDTO(representationEntity, representationClass))
                 .map(RepresentationDescriptor::getRepresentation)
                 .filter(representationClass::isInstance)
                 .map(representationClass::cast);

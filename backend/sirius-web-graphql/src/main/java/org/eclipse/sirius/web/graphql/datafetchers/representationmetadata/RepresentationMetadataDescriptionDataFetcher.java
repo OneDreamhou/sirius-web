@@ -49,7 +49,7 @@ public class RepresentationMetadataDescriptionDataFetcher implements IDataFetche
     public IRepresentationDescription get(DataFetchingEnvironment environment) throws Exception {
         IRepresentationMetadata representationMetadata = environment.getSource();
         UUID descriptionId = representationMetadata.getDescriptionId();
-        return this.representationDescriptionSearchService.findById(descriptionId).orElse(null);
+        return this.representationDescriptionSearchService.findById(null, descriptionId).orElse(null);
     }
 
 }
